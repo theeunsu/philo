@@ -6,16 +6,14 @@
 /*   By: eahn <eahn@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/25 16:08:35 by eahn              #+#    #+#             */
-/*   Updated: 2024/07/28 23:01:09 by eahn             ###   ########.fr       */
+/*   Updated: 2024/07/29 00:04:03 by eahn             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/philo.h"
 
-/*
- * EVEN ODD fork assignment to avoid deadlock
- * philo_position: philo id - 1
- */
+// EVEN ODD fork assignment to avoid deadlock
+// philo_position: philo id - 1
 static void	init_fork(t_philo *philo, t_fork *forks, int philo_position)
 {
 	int	num_philos;
@@ -66,7 +64,6 @@ static int	init_philo(t_info *info)
 int	init_info(t_info *info, int ac, char **av)
 {
 	info->num_philos = ft_atoi(av[1]);
-	printf("Parsed num_philos: %ld\n", info->num_philos);
 	if (info->num_philos <= 0)
 		return (print_error("Number of philosophers must be greater than 0."));
 	info->time_to_die = ft_atoi(av[2]) * 1000;

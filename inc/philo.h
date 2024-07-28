@@ -6,7 +6,7 @@
 /*   By: eahn <eahn@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/25 13:29:18 by eahn              #+#    #+#             */
-/*   Updated: 2024/07/28 22:36:02 by eahn             ###   ########.fr       */
+/*   Updated: 2024/07/29 00:03:25 by eahn             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,8 @@
 # include <unistd.h>   // write, usleep
 
 /* ENUM */
-//	OPCODE for mutex | thread functions
+
+// mutex and thread operation codes
 typedef enum e_opcode
 {
 	LOCK,
@@ -36,6 +37,7 @@ typedef enum e_opcode
 	DETACH,
 }						t_opcode;
 
+// status of each philosopher
 typedef enum s_status
 {
 	EAT,
@@ -46,6 +48,7 @@ typedef enum s_status
 	DEAD
 }						t_status;
 
+// time unit
 typedef enum s_time
 {
 	MILLI,
@@ -57,42 +60,43 @@ typedef enum s_time
 typedef pthread_mutex_t	t_mtx;
 typedef struct s_info	t_info;
 
+// for forks with mutex
 typedef struct s_fork
 {
 	t_mtx				fork_mutex;
 	int					fork_id;
 }						t_fork;
 
-// Structure for each philosopher
+// for each philosopher
 typedef struct s_philo
 {
-	int id;              // 철학자 ID
-	int meal_count;      // 철학자가 먹은 횟수
-	bool full_flag;      // full: maximum number of meals
-	long last_meal_time; // 마지막으로 먹은 시간
-	t_fork *first_fork;  //
-	t_fork *second_fork; //
-	pthread_t tid;       // 철학자의 쓰레드 ID
-	t_mtx philo_mutex;   // useful for races with the monitor
+	int					id;
+	int					meal_count;
+	bool				full_flag;
+	long				last_meal_time;
+	t_fork				*first_fork;
+	t_fork				*second_fork;
+	pthread_t			tid;
+	t_mtx				philo_mutex;
 	t_info				*info;
 }						t_philo;
 
-// Structure for common information of philosophers
+// for common information shared among philosophers
 struct					s_info
 {
-	long num_philos; // philo_nbr
+	long				num_philos;
 	long				time_to_die;
 	long				time_to_eat;
 	long				time_to_sleep;
-	long must_eat_count;  // [5] nbr_limit_meal
-	long start_time;      // timestamps
-	long threads_counter; // threads_running_nbr
-	bool finish_flag;     // // end_simulation
-	bool all_ready_flag;  // all_threads_ready (synchro philo)
-	t_mtx info_mutex;     // table_mutex: avoid races while reading from table
-	t_mtx print_mutex;    // write mutex
-	t_fork *forks;        // forks array
-	t_philo *philos;      // philo array
+	long				must_eat_count;
+	long				start_time;
+	long				threads_counter;
+	bool				finish_flag;
+	bool				all_ready_flag;
+	t_mtx				info_mutex;
+	t_mtx				print_mutex;
+	t_fork				*forks;
+	t_philo				*philos;
 	pthread_t			monitor;
 };
 

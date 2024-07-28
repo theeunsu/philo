@@ -6,7 +6,7 @@
 /*   By: eahn <eahn@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/01 22:40:53 by eahn              #+#    #+#             */
-/*   Updated: 2024/07/28 22:38:33 by eahn             ###   ########.fr       */
+/*   Updated: 2024/07/29 00:32:54 by eahn             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,8 @@ void	*simulation(void *arg)
 	return (NULL);
 }
 
+// pause for 200 microseconds with usleep
+// used to prevent the thread from busy-waiting (constantly checking)
 void	*one_philo(void *arg)
 {
 	t_philo	*philo;

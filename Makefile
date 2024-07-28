@@ -6,11 +6,11 @@
 #    By: eahn <eahn@student.42.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/07/02 17:16:57 by eahn              #+#    #+#              #
-#    Updated: 2024/07/28 22:20:04 by eahn             ###   ########.fr        #
+#    Updated: 2024/07/29 00:56:00 by eahn             ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-CC = cc
+CC = cc #-fsanitize=thread -g -o
 CFLAGS = -Wall -Wextra -Werror
 
 NAME = philo

@@ -6,7 +6,7 @@
 /*   By: eahn <eahn@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 19:08:12 by eahn              #+#    #+#             */
-/*   Updated: 2024/07/28 19:12:51 by eahn             ###   ########.fr       */
+/*   Updated: 2024/07/28 23:58:39 by eahn             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ void	set_value_long(t_mtx *mutex, long *dest, long value)
 
 long	get_value_long(t_mtx *mutex, long *value)
 {
-	long ret;
+	long	ret;
 
 	safe_mutex_operation(mutex, LOCK);
 	ret = *value;

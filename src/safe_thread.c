@@ -6,7 +6,7 @@
 /*   By: eahn <eahn@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/28 15:02:09 by eahn              #+#    #+#             */
-/*   Updated: 2024/07/21 22:04:36 by eahn             ###   ########.fr       */
+/*   Updated: 2024/07/28 23:04:38 by eahn             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,9 +34,12 @@ static void	thread_error(int status, t_opcode opcode)
 
 // One function to handle all thread errors
 // create join detach
-void	thread_operation(pthread_t *thread, void *(*foo)(void *),
+void	safe_thread_operation(pthread_t *thread, void *(*foo)(void *),
 		void *data, t_opcode opcode)
 {
+	int	status;
+
+	status = 0;
 	if (CREATE == opcode)
 		thread_error(pthread_create(thread, NULL, foo, data), opcode);
 	else if (JOIN == opcode)
@@ -44,5 +47,13 @@ void	thread_operation(pthread_t *thread, void *(*foo)(void *),
 	else if (DETACH == opcode)
 		thread_error(pthread_detach(*thread), opcode);
 	else
+	{
 		print_error("Use (CREATE | JOIN | DETACH)");
+		return ;
+	}
+	if (status != 0)
+	{
+		thread_error(status, opcode);
+		return ;
+	}
 }

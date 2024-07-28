@@ -6,7 +6,7 @@
 /*   By: eahn <eahn@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/25 16:08:35 by eahn              #+#    #+#             */
-/*   Updated: 2024/07/21 22:03:34 by eahn             ###   ########.fr       */
+/*   Updated: 2024/07/28 23:01:09 by eahn             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,18 +41,19 @@ static int	init_philo(t_info *info)
 	info->forks = malloc(sizeof(t_fork) * info->num_philos);
 	if (!info->philos || !info->forks)
 		return (print_error("Malloc failed."));
-	mutex_operation(&(info->table_mutex), INIT);
+	safe_mutex_operation(&(info->info_mutex), INIT);
+	safe_mutex_operation(&(info->print_mutex), INIT);
 	while (++i < info->num_philos)
 	{
-		mutex_operation(&(info->forks[i].fork), INIT);
-		mutex_operation(&(philo->philo_mutex), INIT);
-		info->forks[i].fork_id = i;
+		safe_mutex_operation(&(info->forks[i].fork_mutex), INIT);
 		philo = info->philos + i;
+		safe_mutex_operation(&(philo->philo_mutex), INIT);
+		info->forks[i].fork_id = i;
 		philo->id = i + 1;
-		philo->max_meal = false;
+		philo->full_flag = false;
 		philo->meal_count = 0;
 		philo->info = info;
-		init_forks(philo, info->forks, i);
+		init_fork(philo, info->forks, i);
 	}
 	return (0);
 }
@@ -65,7 +66,8 @@ static int	init_philo(t_info *info)
 int	init_info(t_info *info, int ac, char **av)
 {
 	info->num_philos = ft_atoi(av[1]);
-	if (info->num_philos == 0)
+	printf("Parsed num_philos: %ld\n", info->num_philos);
+	if (info->num_philos <= 0)
 		return (print_error("Number of philosophers must be greater than 0."));
 	info->time_to_die = ft_atoi(av[2]) * 1000;
 	info->time_to_eat = ft_atoi(av[3]) * 1000;
@@ -73,8 +75,8 @@ int	init_info(t_info *info, int ac, char **av)
 	if (info->num_philos < 1 || info->time_to_die < 1 || info->time_to_eat < 1
 		|| info->time_to_sleep < 1)
 		return (print_error("Invalid argument."));
-	info->finish = false;
-	info->all_philo_ready = false;
+	info->finish_flag = false;
+	info->all_ready_flag = false;
 	if (ac == 6)
 	{
 		info->must_eat_count = ft_atoi(av[5]);
@@ -83,5 +85,7 @@ int	init_info(t_info *info, int ac, char **av)
 	}
 	else
 		info->must_eat_count = -1;
+	if (init_philo(info) == -1)
+		return (-1);
 	return (0);
 }

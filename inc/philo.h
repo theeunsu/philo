@@ -6,7 +6,7 @@
 /*   By: eahn <eahn@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/25 13:29:18 by eahn              #+#    #+#             */
-/*   Updated: 2024/07/21 21:19:49 by eahn             ###   ########.fr       */
+/*   Updated: 2024/07/28 22:36:02 by eahn             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,17 +23,6 @@
 # include <sys/time.h> // gettimeofday
 # include <unistd.h>   // write, usleep
 
-/* ANSI Escape Sequences for Bold Text Colors  */
-# define BLACK "\033[1;30m"
-# define RED "\033[1;31m"
-# define GREEN "\033[1;32m"
-# define YELLOW "\033[1;33m"
-# define BLUE "\033[1;34m"
-# define MAGENTA "\033[1;35m"
-# define CYAN "\033[1;36m"
-# define WHITE "\033[1;37m"
-# define RST "\033[0m"
-
 /* ENUM */
 //	OPCODE for mutex | thread functions
 typedef enum e_opcode
@@ -47,6 +36,22 @@ typedef enum e_opcode
 	DETACH,
 }						t_opcode;
 
+typedef enum s_status
+{
+	EAT,
+	SLEEP,
+	THINK,
+	TAKE_FORK_1,
+	TAKE_FORK_2,
+	DEAD
+}						t_status;
+
+typedef enum s_time
+{
+	MILLI,
+	MICRO
+}						t_time;
+
 /* STRUCTURES */
 
 typedef pthread_mutex_t	t_mtx;
@@ -54,7 +59,7 @@ typedef struct s_info	t_info;
 
 typedef struct s_fork
 {
-	t_mtx				fork;
+	t_mtx				fork_mutex;
 	int					fork_id;
 }						t_fork;
 
@@ -63,7 +68,7 @@ typedef struct s_philo
 {
 	int id;              // 철학자 ID
 	int meal_count;      // 철학자가 먹은 횟수
-	bool max_meal;       // full: maximum number of meals
+	bool full_flag;      // full: maximum number of meals
 	long last_meal_time; // 마지막으로 먹은 시간
 	t_fork *first_fork;  //
 	t_fork *second_fork; //
@@ -81,37 +86,58 @@ struct					s_info
 	long				time_to_sleep;
 	long must_eat_count;  // [5] nbr_limit_meal
 	long start_time;      // timestamps
-	bool finish;          // // end_simulation
-	bool all_philo_ready; // all_threads_ready (synchro philo)
-	t_mtx table_mutex;    // avoid races while reading from table
+	long threads_counter; // threads_running_nbr
+	bool finish_flag;     // // end_simulation
+	bool all_ready_flag;  // all_threads_ready (synchro philo)
+	t_mtx info_mutex;     // table_mutex: avoid races while reading from table
 	t_mtx print_mutex;    // write mutex
 	t_fork *forks;        // forks array
 	t_philo *philos;      // philo array
+	pthread_t			monitor;
 };
 
+/* error_clean.c */
+int						print_error(char *str);
+void					clean(t_info *info);
+
 /* init.c */
-int						init_philo(t_info *info);
 int						init_info(t_info *info, int ac, char **av);
-int						init_threads(t_info *info, t_philo *philo);
 
-/* philo_actions.c */
-long long				get_time(void);
-void					eat(t_info *info, t_philo *philo);
-void					sleep_think(t_info *info, t_philo *philo);
+/* init_util.c */
+long					ft_atoi(const char *str);
 
-/* safe_thread_mutex.c */
+/* safe_mutex.c */
 void					safe_mutex_operation(pthread_mutex_t *mutex,
 							t_opcode opcode);
+
+/* safe_thread.c */
 void					safe_thread_operation(pthread_t *thread,
 							void *(*foo)(void *), void *data, t_opcode opcode);
 
-/* simulation.c */
-void					*simulation(void *arg);
-void					monitor_simulation(t_info *info, t_philo *philo);
-void					clean(t_info *info, t_philo *philo);
+/* setget_value */
+void					set_value_bool(t_mtx *mutex, bool *dest, bool value);
+bool					get_value_bool(t_mtx *mutex, bool *value);
+void					set_value_long(t_mtx *mutex, long *dest, long value);
+long					get_value_long(t_mtx *mutex, long *value);
 
-/* utils.c */
-int						print_error(char *str);
-void					print_log(t_info *info, t_philo *philo, char *str);
-int						ft_atoi(const char *str);
+/* simul_ations.c */
+void					eat(t_philo *philo);
+void					think(t_philo *philo, bool pre_simulation);
+void					think_more(t_philo *philo);
+
+/* simul_monitor.c */
+void					*monitor_simul(void *arg);
+
+/* simul_utils.c */
+void					print_status(t_philo *philo, t_status status);
+void					wait_for_threads(t_info *info);
+bool					is_simul_finished(t_info *info);
+long					get_time(t_time time_type);
+void					take_time(long usec, t_info *info);
+
+/* simul.c */
+void					*simulation(void *arg);
+void					*one_philo(void *arg);
+int						start_simulation(t_info *info);
+
 #endif

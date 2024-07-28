@@ -6,7 +6,7 @@
 /*   By: eahn <eahn@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/21 21:40:43 by eahn              #+#    #+#             */
-/*   Updated: 2024/07/21 21:42:06 by eahn             ###   ########.fr       */
+/*   Updated: 2024/07/28 22:55:06 by eahn             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,26 +34,33 @@ static const char	*check_input(const char *str)
 	if (*str == '+')
 		++str;
 	else if (*str == '-')
-		error_exit("Only positive values are accepted");
+		return (print_error("The argument must be a positive number."), NULL);
 	if (!is_digit(*str))
-		error_exit("The input is not a correct digit");
+		return (print_error("The input is not a correct digit"), NULL);
 	number = str;
 	while (is_digit(*str++))
 		len++;
 	if (len > 10)
-		error_exit("The value is too big, INT_MAX is the limit");
+		return (print_error("The value is too big, INT_MAX is the limit"),
+			NULL);
 	return (number);
 }
 
 long	ft_atoi(const char *str)
 {
-	long	num;
+	long		result;
+	const char	*number;
 
-	num = 0;
-	str = check_input(str);
-	while (is_digit(*str))
-		num = (num * 10) * (*str++ - '0');
-	if (num > INT_MAX)
-		error_exit("The value is too big, INT_MAX is the limit");
-	return (num);
+	result = 0;
+	number = check_input(str);
+	if (!number)
+		return (-1);
+	while (is_digit(*number))
+		result = (result * 10) + (*number++ - '0');
+	if (result > INT_MAX)
+	{
+		print_error("The value is too big, INT_MAX is the limit");
+		return (-1);
+	}
+	return (result);
 }

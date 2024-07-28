@@ -6,7 +6,7 @@
 #    By: eahn <eahn@student.42.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/07/02 17:16:57 by eahn              #+#    #+#              #
-#    Updated: 2024/07/02 21:55:20 by eahn             ###   ########.fr        #
+#    Updated: 2024/07/28 22:20:04 by eahn             ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,12 +17,17 @@ NAME = philo
 
 SRC_DIR = ./src/
 
-SRCS = actions.c\
+SRCS = error_clean.c\
+		init_utils.c\
 		init.c\
 		main.c\
-		safe_thread_mutex.c\
-		simulation.c\
-		utils.c
+		safe_mutex.c\
+		safe_thread.c\
+		setget_value.c\
+		simul_action.c\
+		simul_monitor.c\
+		simul_utils.c\
+		simul.c
 
 NEW_SRCS = $(addprefix $(SRC_DIR), $(SRCS))
 

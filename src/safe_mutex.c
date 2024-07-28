@@ -6,7 +6,7 @@
 /*   By: eahn <eahn@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/21 22:00:17 by eahn              #+#    #+#             */
-/*   Updated: 2024/07/21 22:04:09 by eahn             ###   ########.fr       */
+/*   Updated: 2024/07/28 23:02:55 by eahn             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,8 +37,11 @@ static void	mutex_error(int status, t_opcode opcode)
 
 // ** MUTEX SAFE ***
 // init destroy lock unlock
-void	mutex_operation(pthread_mutex_t *mutex, t_opcode opcode)
+void	safe_mutex_operation(pthread_mutex_t *mutex, t_opcode opcode)
 {
+	int	status;
+
+	status = 0;
 	if (LOCK == opcode)
 		mutex_error(pthread_mutex_lock(mutex), opcode);
 	else if (UNLOCK == opcode)
@@ -48,5 +51,13 @@ void	mutex_operation(pthread_mutex_t *mutex, t_opcode opcode)
 	else if (DESTROY == opcode)
 		mutex_error(pthread_mutex_destroy(mutex), opcode);
 	else
+	{
 		print_error("Error with the mutex opcode");
+		return ;
+	}
+	if (status != 0)
+	{
+		mutex_error(status, opcode);
+		return ;
+	}
 }

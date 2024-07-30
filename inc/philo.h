@@ -6,13 +6,14 @@
 /*   By: eahn <eahn@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/25 13:29:18 by eahn              #+#    #+#             */
-/*   Updated: 2024/07/07 23:17:41 by eahn             ###   ########.fr       */
+/*   Updated: 2024/07/30 12:11:42 by eahn             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef PHILO_H
 # define PHILO_H
 
+# include <limits.h> // INT_MAX
 # include <pthread.h>
 // mutex: init destroy lock unlock	// threads: create join detach
 # include <errno.h>    // errno
@@ -23,7 +24,8 @@
 # include <unistd.h>   // write, usleep
 
 /* ENUM */
-//	OPCODE for mutex | thread functions
+
+// mutex and thread operation codes
 typedef enum e_opcode
 {
 	LOCK,
@@ -33,63 +35,113 @@ typedef enum e_opcode
 	CREATE,
 	JOIN,
 	DETACH,
-}				t_opcode;
+}						t_opcode;
+
+// status of each philosopher
+typedef enum s_status
+{
+	EAT,
+	SLEEP,
+	THINK,
+	TAKE_FORK_1,
+	TAKE_FORK_2,
+	DEAD
+}						t_status;
+
+// time unit
+typedef enum s_time
+{
+	MILLI,
+	MICRO
+}						t_time;
 
 /* STRUCTURES */
-// Structure for common information of philosophers
-typedef struct s_info
+
+typedef pthread_mutex_t	t_mtx;
+typedef struct s_info	t_info;
+
+// for forks with mutex
+typedef struct s_fork
 {
-	int			num_philos;
-	bool finish_flag; // simulation_flag
-	int			all_eat_count;
-	int			must_eat_count;
-	int			time_to_die;
-	int			time_to_eat;
-	int			time_to_sleep;
-	long long	start_time;
-	pthread_t tid; // 철학자의 쓰레드 ID
-	t_philo		*philos;
-	pthread_mutex_t status_mutex; // print_mutex
-	pthread_mutex_t eat_mutex;    // 식사 시간 기록용 뮤텍스
-	pthread_mutex_t count_mutex;  // 식사 횟수 기록용 뮤텍스 ??
-	pthread_mutex_t finish_mutex; // 플래그 변경용 뮤텍스
-	pthread_mutex_t *forks;       // 포크 배열 (각 철학자들의 포크 뮤텍스)
+	t_mtx				fork_mutex;
+	int					fork_id;
+}						t_fork;
 
-}				t_info;
-
-// Structure for each philosopher
+// for each philosopher
 typedef struct s_philo
 {
-	int id;                   // 철학자 ID
-	int left_fork;            // 왼쪽 포크의 인덱스
-	int right_fork;           // 오른쪽 포크의 인덱스
-	int meal_count;           // 철학자가 먹은 횟수
-	long long last_meal_time; // 마지막으로 먹은 시간
-	t_info		*info;
-}				t_philo;
+	int					id;
+	int					meal_count;
+	bool				full_flag;
+	long				last_meal_time;
+	t_fork				*first_fork;
+	t_fork				*second_fork;
+	pthread_t			tid;
+	t_mtx				philo_mutex;
+	t_info				*info;
+}						t_philo;
+
+// for common information shared among philosophers
+struct					s_info
+{
+	long				num_philos;
+	long				time_to_die;
+	long				time_to_eat;
+	long				time_to_sleep;
+	long				must_eat_count;
+	long				start_time;
+	long				threads_counter;
+	bool				finish_flag;
+	bool				all_ready_flag;
+	t_mtx				info_mutex;
+	t_mtx				print_mutex;
+	t_fork				*forks;
+	t_philo				*philos;
+	pthread_t			monitor;
+};
+
+/* error_clean.c */
+int						print_error(char *str);
+void					clean(t_info *info);
 
 /* init.c */
-int				init_philo(t_info *info);
-int				init_info(t_info *info, int ac, char **av);
-int				init_threads(t_info *info, t_philo *philo);
+int						init_info(t_info *info, int ac, char **av);
 
-/* philo_actions.c */
-long long		get_time(void);
-void			eat(t_info *info, t_philo *philo);
-void			sleep_think(t_info *info, t_philo *philo);
+/* init_util.c */
+long					ft_atoi(const char *str);
 
-/* safe_thread_mutex.c */
-void			safe_mutex_operation(pthread_mutex_t *mutex, t_opcode opcode);
-void			safe_thread_operation(pthread_t *thread, void *(*foo)(void *),
-					void *data, t_opcode opcode);
+/* safe_mutex.c */
+void					safe_mutex_operation(pthread_mutex_t *mutex,
+							t_opcode opcode);
 
-/* simulation.c */
-void			*simulation(void *arg);
-void			monitor_simulation(t_info *info, t_philo *philo);
-void			clean(t_info *info, t_philo *philo);
+/* safe_thread.c */
+void					safe_thread_operation(pthread_t *thread,
+							void *(*foo)(void *), void *data, t_opcode opcode);
 
-/* utils.c */
-int				print_error(char *str);
-void			print_log(t_info *info, t_philo *philo, char *str);
-int				ft_atoi(const char *str);
+/* setget_value */
+void					set_value_bool(t_mtx *mutex, bool *dest, bool value);
+bool					get_value_bool(t_mtx *mutex, bool *value);
+void					set_value_long(t_mtx *mutex, long *dest, long value);
+long					get_value_long(t_mtx *mutex, long *value);
+
+/* simul_ations.c */
+void					eat(t_philo *philo);
+void					think(t_philo *philo, bool pre_simulation);
+void					think_more(t_philo *philo);
+
+/* simul_monitor.c */
+void					*monitor_simul(void *arg);
+
+/* simul_utils.c */
+void					print_status(t_philo *philo, t_status status);
+void					wait_for_threads(t_info *info);
+bool					is_simul_finished(t_info *info);
+long					get_time(t_time time_type);
+void					take_time(long usec, t_info *info);
+
+/* simul.c */
+void					*simulation(void *arg);
+void					*one_philo(void *arg);
+int						start_simulation(t_info *info);
+
 #endif

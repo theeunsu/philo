@@ -6,7 +6,7 @@
 /*   By: eahn <eahn@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 20:29:33 by eahn              #+#    #+#             */
-/*   Updated: 2024/07/29 01:04:54 by eahn             ###   ########.fr       */
+/*   Updated: 2024/07/30 16:07:14 by eahn             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ static bool	is_all_run(t_mtx *mutex, long *threads, long num_philos)
 	return (ret);
 }
 
-// first, check if all threads are running
+// first, check if all threads are running (busy-waiting until all thr created)
 // then, check continuously if simulation is finished
 // it checks if any philosopher is dead
 void	*monitor_simul(void *arg)
@@ -50,7 +50,7 @@ void	*monitor_simul(void *arg)
 	info = (t_info *)arg;
 	while (!is_all_run(&info->info_mutex, &info->threads_counter,
 			info->num_philos))
-		;
+		usleep(10);
 	while (!is_simul_finished(info))
 	{
 		i = -1;
@@ -62,6 +62,7 @@ void	*monitor_simul(void *arg)
 				print_status(info->philos + i, DEAD);
 			}
 		}
+		usleep(10);
 	}
 	return (NULL);
 }

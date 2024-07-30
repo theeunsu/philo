@@ -6,7 +6,7 @@
 /*   By: eahn <eahn@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/01 23:31:44 by eahn              #+#    #+#             */
-/*   Updated: 2024/07/28 22:28:09 by eahn             ###   ########.fr       */
+/*   Updated: 2024/07/30 17:24:53 by eahn             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,13 +30,16 @@ void	eat(t_philo *philo)
 	safe_mutex_operation(&philo->second_fork->fork_mutex, UNLOCK);
 }
 
-void	think(t_philo *philo, bool pre_simulation)
+// if not in inital phase, print status
+// For odd philo, calculate think time (t_eat * 2 - t_sleep)
+// impose think time half of the calculated think time
+void	think(t_philo *philo, bool is_inital_phase)
 {
 	long	t_eat;
 	long	t_sleep;
 	long	t_think;
 
-	if (!pre_simulation)
+	if (!is_inital_phase)
 		print_status(philo, THINK);
 	if (philo->info->num_philos % 2 == 0)
 		return ;
@@ -48,7 +51,9 @@ void	think(t_philo *philo, bool pre_simulation)
 	take_time(t_think * 0.5, philo->info);
 }
 
-void	think_more(t_philo *philo)
+// if even, wait ensures not all even philo pick fork at the same time
+// if odd, odd philo execute think in inital phase
+void	initial_delay(t_philo *philo)
 {
 	if (philo->info->num_philos % 2 == 0)
 	{

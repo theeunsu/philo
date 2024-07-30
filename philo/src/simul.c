@@ -6,7 +6,7 @@
 /*   By: eahn <eahn@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/01 22:40:53 by eahn              #+#    #+#             */
-/*   Updated: 2024/07/29 00:32:54 by eahn             ###   ########.fr       */
+/*   Updated: 2024/07/30 17:24:56 by eahn             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ void	*simulation(void *arg)
 	safe_mutex_operation(&philo->info->info_mutex, LOCK);
 	philo->info->threads_counter++;
 	safe_mutex_operation(&philo->info->info_mutex, UNLOCK);
-	think_more(philo);
+	initial_delay(philo);
 	while (!is_simul_finished(philo->info))
 	{
 		if (philo->full_flag)

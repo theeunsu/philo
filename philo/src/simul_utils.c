@@ -6,7 +6,7 @@
 /*   By: eahn <eahn@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 19:46:21 by eahn              #+#    #+#             */
-/*   Updated: 2024/07/28 22:37:49 by eahn             ###   ########.fr       */
+/*   Updated: 2024/07/30 16:04:16 by eahn             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,10 +16,10 @@ void	print_status(t_philo *philo, t_status status)
 {
 	long	time_passed;
 
-	time_passed = get_time(MILLI) - philo->info->start_time;
 	if (philo->full_flag)
 		return ;
 	safe_mutex_operation(&(philo->info->print_mutex), LOCK);
+	time_passed = get_time(MILLI) - philo->info->start_time;
 	if (!is_simul_finished(philo->info) && (status == TAKE_FORK_1
 			|| status == TAKE_FORK_2))
 		printf("%ld %d has taken a fork\n", time_passed, philo->id);
@@ -37,7 +37,7 @@ void	print_status(t_philo *philo, t_status status)
 void	wait_for_threads(t_info *info)
 {
 	while (!get_value_bool(&info->info_mutex, &info->all_ready_flag))
-		;
+		usleep(10);
 }
 
 bool	is_simul_finished(t_info *info)
@@ -83,6 +83,6 @@ void	take_time(long usec, t_info *info)
 			usleep(remain / 2);
 		else
 			while (get_time(MICRO) - start < usec)
-				;
+				usleep(10);
 	}
 }

@@ -6,7 +6,7 @@
 /*   By: eahn <eahn@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/25 13:29:18 by eahn              #+#    #+#             */
-/*   Updated: 2024/07/29 00:03:25 by eahn             ###   ########.fr       */
+/*   Updated: 2024/07/30 17:25:31 by eahn             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -127,7 +127,7 @@ long					get_value_long(t_mtx *mutex, long *value);
 /* simul_ations.c */
 void					eat(t_philo *philo);
 void					think(t_philo *philo, bool pre_simulation);
-void					think_more(t_philo *philo);
+void					initial_delay(t_philo *philo);
 
 /* simul_monitor.c */
 void					*monitor_simul(void *arg);

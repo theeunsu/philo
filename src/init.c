@@ -6,7 +6,7 @@
 /*   By: eahn <eahn@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/25 16:08:35 by eahn              #+#    #+#             */
-/*   Updated: 2024/07/29 00:04:03 by eahn             ###   ########.fr       */
+/*   Updated: 2024/07/30 12:28:07 by eahn             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,6 +72,7 @@ int	init_info(t_info *info, int ac, char **av)
 	if (info->num_philos < 1 || info->time_to_die < 1 || info->time_to_eat < 1
 		|| info->time_to_sleep < 1)
 		return (print_error("Invalid argument."));
+	info->threads_counter = 0;
 	info->finish_flag = false;
 	info->all_ready_flag = false;
 	if (ac == 6)
